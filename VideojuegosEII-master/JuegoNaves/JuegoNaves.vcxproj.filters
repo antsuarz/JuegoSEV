@@ -66,7 +66,7 @@
     <ClCompile Include="Puerta.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
-    <ClCompile Include="Recolectable.cpp">
+    <ClCompile Include="Cofre.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
     <ClCompile Include="MovableTile.cpp">
@@ -128,7 +128,7 @@
     <ClInclude Include="Puerta.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
-    <ClInclude Include="Recolectable.h">
+    <ClInclude Include="Cofre.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
     <ClInclude Include="MovableTile.h">

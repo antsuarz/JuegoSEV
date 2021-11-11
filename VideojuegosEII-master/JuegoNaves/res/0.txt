@@ -1,6 +1,6 @@
 ########################PPPPPPPPPPPPPPPPPPPPP
 PPPPPPPPPPPPPPCPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
-P[.....................]PPPPPPPPPPPPPPPPPPPPP
+P[...R.................]PPPPPPPPPPPPPPPPPPPPP
 P[.....................]PPPPPPPPPPPPPPPPPPPPP
 P[.....................].....................
 P#####S#################....................B

@@ -1,6 +1,9 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\VideojuegosEII-master",
+    "\\VideojuegosEII-master\\JuegoNaves"
   ],
+  "SelectedNode": "\\VideojuegosEII-master\\JuegoNaves\\Player.cpp",
   "PreviewInSolutionExplorer": false
 }

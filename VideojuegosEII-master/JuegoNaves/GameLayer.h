@@ -15,7 +15,7 @@
 #include "StairsTile.h"
 #include "Space.h"
 #include <list>
-#include "Recolectable.h"
+#include "Cofre.h"
 
 #include "Pad.h"
 #include <fstream> // Leer ficheros
@@ -70,7 +70,7 @@ public:
 	Actor* buttonShoot;
 	//---------------
 
-	list<Recolectable*> recolectables;
+	list<Cofre*> cofres;
 	list<Enemy*> enemies;
 	list<Projectile*> projectiles;
 	list<Puerta*> puertas;

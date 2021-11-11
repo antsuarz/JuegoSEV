@@ -33,7 +33,7 @@ void GameLayer::init() {
 		//WIDTH * 0.65, HEIGHT * 0.07, 40, 40, game);
 
 	puertas.clear();
-	recolectables.clear();
+	cofres.clear();
 	projectiles.clear(); // Vaciar por si reiniciamos el juego
 	enemies.clear(); // Vaciar por si reiniciamos el juego
 	mtiles.clear();
@@ -207,7 +207,7 @@ void GameLayer::update() {
 		tile->update();
 	}  
 
-	for (auto const& r : recolectables) {
+	for (auto const& r : cofres) {
 		r->update();
 	}
 
@@ -255,13 +255,9 @@ void GameLayer::update() {
 		projectile->update();
 	}
 
-	for (auto const& rec : recolectables) {
+	for (auto const& rec : cofres) {
 		if (player->isOverlap(rec)) {
-			recolectable += 1;
-			recolectables.remove(rec);
-			draw();
-			textRecolectables->content = to_string(recolectable);
-			break;
+			rec->open = true; 
 		}
 	}
 	// Colisiones , Enemy - Projectile
@@ -358,7 +354,7 @@ void GameLayer::draw() {
 		p->draw(scrollX);
 	}
 
-	for (auto const& r: recolectables) {
+	for (auto const& r: cofres) {
 		r->draw(scrollX);
 	}
 
@@ -431,9 +427,9 @@ void GameLayer::loadMapObject(char character, float x, float y)
 	switch (character) {
 	
 	case 'R': {
-		Recolectable* r = new Recolectable(x, y, game);
+		Cofre* r = new Cofre(x, y, game);
 		r->y = r->y - r->height / 2;
-		recolectables.push_back(r);
+		cofres.push_back(r);
 		space->addDynamicActor(r);
 		break;
 	}

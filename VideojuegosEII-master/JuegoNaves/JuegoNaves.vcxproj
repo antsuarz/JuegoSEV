@@ -168,7 +168,7 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="Puerta.cpp" />
-    <ClCompile Include="Recolectable.cpp" />
+    <ClCompile Include="Cofre.cpp" />
     <ClCompile Include="Space.cpp" />
     <ClCompile Include="StairsTile.cpp" />
     <ClCompile Include="Text.cpp" />
@@ -190,7 +190,7 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="Projectile.h" />
     <ClInclude Include="Puerta.h" />
-    <ClInclude Include="Recolectable.h" />
+    <ClInclude Include="Cofre.h" />
     <ClInclude Include="Space.h" />
     <ClInclude Include="StairsTile.h" />
     <ClInclude Include="Text.h" />
