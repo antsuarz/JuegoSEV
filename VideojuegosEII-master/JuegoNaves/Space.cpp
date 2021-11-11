@@ -29,12 +29,8 @@ void Space::removeStaticActor(Actor* actor) {
 }
 
 void Space::update() {
-	for (auto const& actor : dynamicActors) {
-		actor->vy = actor->vy + gravity;
-		// máxima velocidad de caída por gravedad
-		if (actor->vy > 20) {
-			actor->vy = 20;
-		}
+	for (auto const& actor : dynamicActors) { 
+		 
 
         // Aun no se han detectado choques
         actor->collisionDown = false;

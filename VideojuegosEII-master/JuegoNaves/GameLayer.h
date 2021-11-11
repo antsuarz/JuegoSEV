@@ -58,8 +58,10 @@ public:
 	bool controlShoot = false;
 	int controlMoveY = 0;
 	int controlMoveX = 0;
+	int counter =15;
 	void teleportPlayer(int x, int y);
-	Tile* cup;
+	Tile* salida;
+	Tile* entrada;
 	//Movidas pal ratón
 	// Elementos de interfaz
 	Pad* pad;

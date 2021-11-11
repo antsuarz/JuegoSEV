@@ -7,34 +7,30 @@ GameLayer::GameLayer(Game* game)
 }
 
 void GameLayer::init() {
-	//Movidas pal raton
-	pad = new Pad(WIDTH * 0.15, HEIGHT * 0.80, game);
-	buttonJump = new Actor("res/boton_salto.png", WIDTH * 0.9, HEIGHT * 0.55, 100, 100, game);
-	buttonShoot = new Actor("res/boton_disparo.png", WIDTH * 0.75, HEIGHT * 0.83, 100, 100, game);
-	//-------
+	 
 	space = new Space(1);
 	scrollX = 0;
-	tiles.clear();
-	audioBackground = new Audio("res/musica_ambiente.mp3", true);
-	audioBackground->play();
-
-	points = 0;
-	lifes = 3;
-	textPoints = new Text("0", WIDTH * 0.92, HEIGHT * 0.05, game);
-	textPoints->content = to_string(points);
-	textLifes = new Text("0", WIDTH * 0.13, HEIGHT * 0.1, game);
-	textLifes->content = to_string(lifes);
-	textRecolectables = new Text("0", WIDTH * 0.75, HEIGHT * 0.05, game);
-	textRecolectables->content =  to_string(recolectable);
-
-	background = new Background("res/fondo_2.png", WIDTH * 0.5, HEIGHT * 0.5,-1, game);
+	tiles.clear(); 
+	//textPoints = new Text("0", WIDTH * 0.92, HEIGHT * 0.05, game);
+	//textPoints->content = to_string(points);
+	//textLifes = new Text("0", WIDTH * 0.13, HEIGHT * 0.1, game);
+	//textLifes->content = to_string(lifes);
+	//textRecolectables = new Text("0", WIDTH * 0.75, HEIGHT * 0.05, game);
+	//textRecolectables->content =  to_string(recolectable);
+	if(game->currentLevel == 0 || game->currentLevel == 2)
+		background = new Background("res/Assets/fondo.png", WIDTH * 0.5, HEIGHT * 0.5,-1, game);
+	if (game->currentLevel == 1) {
+		background = new Background("res/Assets/fondo_cueva2.png", WIDTH * 0.5, HEIGHT * 0.5, -1, game);
+		audioBackground = new Audio("res/Assets/Sonidos/MusicaCueva.mp3", true);
+		audioBackground->play();
+	}
 	//Laposición es relativa a la pantalla, en este caso el 85% del aancho y el 5% del alto
-	backgroundPoints = new Actor("res/icono_puntos.png",
-		WIDTH * 0.85, HEIGHT * 0.05, 24, 24, game);
-	backgroundLifes= new Actor("res/icono_vidas.png",
-		WIDTH *0.07 , HEIGHT * 0.1 ,40, 40, game);
-	backgroundRecolectables = new Actor("res/icono_recolectable.png",
-		WIDTH * 0.65, HEIGHT * 0.07, 40, 40, game);
+	//backgroundPoints = new Actor("res/icono_puntos.png",
+		//WIDTH * 0.85, HEIGHT * 0.05, 24, 24, game);
+	//backgroundLifes= new Actor("res/icono_vidas.png",
+		//WIDTH *0.07 , HEIGHT * 0.1 ,40, 40, game);
+	//backgroundRecolectables = new Actor("res/icono_recolectable.png",
+		//WIDTH * 0.65, HEIGHT * 0.07, 40, 40, game);
 
 	puertas.clear();
 	recolectables.clear();
@@ -43,7 +39,7 @@ void GameLayer::init() {
 	mtiles.clear();
 	dtiles.clear();
 	stiles.clear();
-	loadMap("res/" + to_string(game->currentLevel) + ".txt");
+	loadMap("res/" + to_string(game->currentLevel) + ".txt"); 
 
 }
 
@@ -63,21 +59,7 @@ void GameLayer::processControls() {
 		if (game->input == game->inputKeyboard) {
 			keysToControls(event);
 		}
-		//Movidas pal raton
-		if (game->input == game->inputMouse) {
-			mouseToControls(event);
-		}
-
-	}
-	//procesar controles
-	// Disparar
-	if (controlShoot) {
-		Projectile* newProjectile = player->shoot();
-		if (newProjectile != NULL) {
-			space->addDynamicActor(newProjectile);
-			projectiles.push_back(newProjectile);
-			//controlShoot = false;
-		}
+		 
 
 	}
 
@@ -94,23 +76,13 @@ void GameLayer::processControls() {
 
 	// Eje Y
 	if (controlMoveY > 0) {
-		for (auto const& stile : stiles) {
-			if (player->isOverlap(stile)) {
-				player->moveY(0);
-			}
-		}
+		player->moveY(1);
 	}
 	else if (controlMoveY < 0) {
-		for (auto const& stile : stiles) {
-			if (player->isOverlap(stile)) {
-				player->moveY(-1);
-			}
-			else
-				player->jump();
-		}
-		
+		player->moveY(-1);
 	}
 	else {
+		player->moveY(0);
 	}
 
 }
@@ -187,19 +159,46 @@ void GameLayer::update() {
 	space->update();
 	background->update();
 	player->update();
-
+	
 	// Nivel superado
-	if (cup->isOverlap(player)) {
-		game->currentLevel++;
-		if (game->currentLevel > game->finalLevel) {
-			game->currentLevel = 0;
+	if (salida->isOverlap(player)) {
+		if (counter == 0) {
+			if (game->currentLevel == 2)
+				game->currentLevel--;
+			else
+				game->currentLevel++;
+			if (game->currentLevel > game->finalLevel) {
+				game->currentLevel = 0;
+			}
+			counter = 15;
+			init();
 		}
-		init();
+		else
+			counter--;
 	}
 
-	if (player->y > HEIGHT + 100) {
-		init();
-		return;
+	if (entrada->isOverlap(player)) {
+		if (counter == 0) {
+			game->currentLevel++;
+			if (game->currentLevel > game->finalLevel) {
+				game->currentLevel = 0;
+			}
+			counter = 15;
+			init();
+			if (game->currentLevel == 2) {
+				audioBackground = new Audio("res/Assets/Sonidos/MusicaJuego.mp3", true);
+				audioBackground->play();
+			}
+		}
+		else
+			counter--;
+	}
+	 
+	for (auto const& st : stiles) {
+		if (player->isOverlap(st))
+			player->state = States::CLIMBING; 
+		else
+			player->state = States::IDLE;
 	}
 	for (auto const& enemy : enemies) {
 		enemy->update();
@@ -213,18 +212,6 @@ void GameLayer::update() {
 	}
 
 	// Colisiones
-	for (auto const& enemy : enemies) {
-		if (player->isOverlap(enemy) && (enemy -> state != States::DYING && enemy->state != States::DEAD)) {
-			player->loseLife();
-			lifes= player->lifes;
-			textLifes->content = to_string(lifes);
-			if (player->lifes <= 0) {
-				init();
-				return;
-			}
-		}
-	}
-
 	for (auto const& mt : mtiles) {
 		for (auto const& t : tiles)
 			if (mt->isOverlap(t)) {
@@ -394,29 +381,19 @@ void GameLayer::draw() {
 		projectile->draw(scrollX);
 	}
 
-	cup->draw(scrollX);
+	entrada->draw(scrollX);
+	salida->draw(scrollX);
 	player->draw(scrollX);
 
 	for (auto const& enemy : enemies) {
 		enemy->draw(scrollX);
 	}
-	textPoints->draw(255,233,0);
-	backgroundPoints->draw();
-	textLifes->draw(0,0,0);
-	backgroundLifes->draw();
-	textRecolectables->draw(255, 0, 0);
-	backgroundRecolectables->draw();
-
-	//Movidas pal ratón
-	// HUD
-	// HUD
-	if (game->input == game->inputMouse) {
-
-		pad->draw(); // NO TIENEN SCROLL, POSICION FIJA
-		buttonJump->draw(); // NO TIENEN SCROLL, POSICION FIJA
-		buttonShoot->draw(); // NO TIENEN SCROLL, POSICION FIJA
-	}
-	//------------------
+	//textPoints->draw(255,233,0);
+	//backgroundPoints->draw();
+	//textLifes->draw(0,0,0);
+	//backgroundLifes->draw();
+	//textRecolectables->draw(255, 0, 0);
+	//backgroundRecolectables->draw();
 	
 	SDL_RenderPresent(game->renderer); // Renderiza
 }
@@ -452,13 +429,7 @@ void GameLayer::loadMap(string name) {
 void GameLayer::loadMapObject(char character, float x, float y)
 {
 	switch (character) {
-	case 'C': {
-		cup = new Tile("res/copa.png", x, y, game);
-		// modificación para empezar a contar desde el suelo.
-		cup->y = cup->y - cup->height / 2;
-		space->addDynamicActor(cup); // Realmente no hace falta
-		break;
-	}
+	
 	case 'R': {
 		Recolectable* r = new Recolectable(x, y, game);
 		r->y = r->y - r->height / 2;
@@ -518,12 +489,138 @@ void GameLayer::loadMapObject(char character, float x, float y)
 	}
 	
 	case '#': {
-		Tile* tile = new Tile("res/bloque_tierra.png", x, y, game);
+		Tile* tile = new Tile("res/Assets/Tiles/Borde_Mapa.png", x, y, game);
 		// modificación para empezar a contar desde el suelo.
-		tile->y = tile->y - tile->height / 2;
-		cout << tile->y;
+		tile->y = tile->y - tile->height / 2; 
 		tiles.push_back(tile);
 		space->addStaticActor(tile);
+		break;
+	}
+	case 'B': {
+		entrada = new Tile("res/Assets/Tiles/Pared_Volver.png", x, y, game);
+		// modificación para empezar a contar desde el suelo.
+		entrada->y = entrada->y - entrada->height / 2;
+		space->addNoGravityActor(entrada);
+		break;
+	}
+	case 'C': {
+		salida = new Tile("res/Assets/Tiles/Tile_Puerta.png", x, y, game);
+		// modificación para empezar a contar desde el suelo.
+		salida->y = salida->y - salida->height / 2;
+		space->addNoGravityActor(salida); // Realmente no hace falta
+		break;
+	}
+	case 'P': {
+		Tile* tile = new Tile("res/Assets/Tiles/Tile_Pared.png", x, y, game);
+		// modificación para empezar a contar desde el suelo.
+		tile->y = tile->y - tile->height / 2;
+		tiles.push_back(tile);
+		space->addStaticActor(tile);
+		break;
+	}
+	case 'A': {
+		Tile* tile = new Tile("res/Assets/Tiles/Tile_Pared_Cueva_Bot.png", x, y, game);
+		// modificación para empezar a contar desde el suelo.
+		tile->y = tile->y - tile->height / 2;
+		tiles.push_back(tile);
+		space->addStaticActor(tile);
+		break;
+	}
+	case '0': {
+		Tile* tile = new Tile("res/Assets/Tiles/Tile_Pared_Cueva_Top.png", x, y, game);
+		// modificación para empezar a contar desde el suelo.
+		tile->y = tile->y - tile->height / 2;
+		tiles.push_back(tile);
+		space->addStaticActor(tile);
+		break;
+	}
+	
+	case 'F': {
+		Tile* tile = new Tile("res/Assets/Tiles/Pared_Cueva_Top.png", x, y, game);
+		// modificación para empezar a contar desde el suelo.
+		tile->y = tile->y - tile->height / 2;
+		tiles.push_back(tile);
+		space->addStaticActor(tile);
+		break;
+	}
+	case 'G': {
+		Tile* tile = new Tile("res/Assets/Tiles/Pared_Cueva.png", x, y, game);
+		// modificación para empezar a contar desde el suelo.
+		tile->y = tile->y - tile->height / 2;
+		tiles.push_back(tile);
+		space->addStaticActor(tile);
+		break;
+	}
+	case 'H': {
+		Tile* tile = new Tile("res/Assets/Tiles/Tile_ParedD.png", x, y, game);
+		// modificación para empezar a contar desde el suelo.
+		tile->y = tile->y - tile->height / 2;
+		tiles.push_back(tile);
+		space->addStaticActor(tile);
+		break;
+	}
+	case 'I': {
+		Tile* tile = new Tile("res/Assets/Tiles/Tile_ParedI.png", x, y, game);
+		// modificación para empezar a contar desde el suelo.
+		tile->y = tile->y - tile->height / 2;
+		tiles.push_back(tile);
+		space->addStaticActor(tile);
+		break;
+	}
+	case 'J': {
+		Tile* tile = new Tile("res/Assets/Tiles/Tile_Esquina_Decha_Bot.png", x, y, game);
+		// modificación para empezar a contar desde el suelo.
+		tile->y = tile->y - tile->height / 2;
+		tiles.push_back(tile);
+		space->addStaticActor(tile);
+		break;
+	}
+	case 'K': {
+		Tile* tile = new Tile("res/Assets/Tiles/Tile_Esquina_Izda_Bot.png", x, y, game);
+		// modificación para empezar a contar desde el suelo.
+		tile->y = tile->y - tile->height / 2;
+		tiles.push_back(tile);
+		space->addStaticActor(tile);
+		break;
+	}
+	case 'L': {
+		Tile* tile = new Tile("res/Assets/Tiles/Tile_Esquina_Decha_Top.png", x, y, game);
+		// modificación para empezar a contar desde el suelo.
+		tile->y = tile->y - tile->height / 2;
+		tiles.push_back(tile);
+		space->addStaticActor(tile);
+		break;
+	}
+	case 'M': {
+		Tile* tile = new Tile("res/Assets/Tiles/Tile_Esquina_Izda_Top.png", x, y, game);
+		// modificación para empezar a contar desde el suelo.
+		tile->y = tile->y - tile->height / 2;
+		tiles.push_back(tile);
+		space->addStaticActor(tile);
+		break;
+	}
+	case 'N': {
+		Tile* tile = new Tile("res/Assets/Tiles/Negro.png", x, y, game);
+		// modificación para empezar a contar desde el suelo.
+		tile->y = tile->y - tile->height / 2;
+		tiles.push_back(tile);
+		space->addStaticActor(tile);
+		break;
+	}
+	case ']': {
+		Tile* tile = new Tile("res/Assets/Tiles/Suelo_BordeD.png",x, y, game);
+		// modificación para empezar a contar desde el suelo.
+		tile->y = tile->y - tile->height / 2;
+		tiles.push_back(tile);
+		space->addNoGravityActor(tile);
+		break;
+	}
+	case '[': {
+		Tile* tile = new Tile("res/Assets/Tiles/Suelo_BordeI.png", x, y, game);
+		// modificación para empezar a contar desde el suelo.
+		tile->y = tile->y - tile->height / 2;
+		tiles.push_back(tile);
+		space->addNoGravityActor(tile);
 		break;
 	}
 	case 'X': {
@@ -553,55 +650,6 @@ void GameLayer::loadMapObject(char character, float x, float y)
 	}
 }
 
-//Movidas pal ratón
-void GameLayer::mouseToControls(SDL_Event event) {
-	// Modificación de coordenadas por posible escalado
-	float motionX = event.motion.x / game->scaleLower;
-	float motionY = event.motion.y / game->scaleLower;
-	// Cada vez que hacen click
-	if (event.type == SDL_MOUSEBUTTONDOWN) {
-		if (buttonShoot->containsPoint(motionX, motionY)) {
-			controlShoot = true;
-		}
-		if (buttonJump->containsPoint(motionX, motionY)) {
-			controlMoveY = -1;
-		}
-
-	}
-	// Cada vez que se mueve
-	if (event.type == SDL_MOUSEMOTION) {
-		if (pad->containsPoint(motionX, motionY)) {
-			controlMoveX = pad->getOrientationX(motionX);
-			// Rango de -20 a 20 es igual que 0
-			if (controlMoveX > -20 && controlMoveX < 20) {
-				controlMoveX = 0;
-			}
-
-		}
-		else {
-			controlMoveX = 0;
-		}
-
-		if (buttonShoot->containsPoint(motionX, motionY) == false) {
-			controlShoot = false;
-		}
-		if (buttonJump->containsPoint(motionX, motionY) == false) {
-			controlMoveY = 0;
-		}
-
-	}
-
-	// Cada vez que levantan el click
-	if (event.type == SDL_MOUSEBUTTONUP) {
-		if (buttonShoot->containsPoint(motionX, motionY)) {
-			controlShoot = false;
-		}
-		if (buttonJump->containsPoint(motionX, motionY)) {
-			controlMoveY = 0;
-		}
-
-	}
-}
 
 void GameLayer::teleportPlayer(int x, int y) {
 	int px = player->x;

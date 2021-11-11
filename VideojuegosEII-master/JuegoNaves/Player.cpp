@@ -3,23 +3,24 @@
 Player::Player(float x, float y, Game* game)
 	: Actor("res/jugador.png", x, y, 35, 35, game) {
 
-	onAir = false;
-	audioShoot = new Audio("res/efecto_disparo.wav", false);
-
-	aShootingRight = new Animation("res/jugador_disparando_derecha.png",
-		width, height, 160, 40, 6, 4, false, game);
-	aShootingLeft = new Animation("res/jugador_disparando_izquierda.png",
-		width, height, 160, 40, 6, 4, false, game);
-
 	aJumpingRight = new Animation("res/jugador_saltando_derecha.png",
 		width, height, 160, 40, 6, 4, false, game);
 	aJumpingLeft = new Animation("res/jugador_saltando_izquierda.png",
 		width, height, 160, 40, 6, 4, false, game);
-
+	aClimbing = new Animation("res/Assets/Trepando.png",18, 29,
+		72, 29, 6, 4, true, game);
+	aIdleTop = new Animation("res/Assets/Felix_Idle_Frente.png", 18, 29,
+		160, 29, 6, 10, true, game);
+	aIdleBot = new Animation("res/Assets/Felix_Idle_Back.png", 18, 29,
+		64, 29, 20, 4, true, game);
 	aIdleRight = new Animation("res/Assets/Felix_Idle_Derecha.png", 18, 29,
 		140,29 , 6, 10, true, game);
 	aIdleLeft = new Animation("res/Assets/Felix_Idle_Izquierda.png", 18, 29,
 		140, 30, 6, 10, true, game);
+	aRunningTop = new Animation("res/Assets/Felix_Walk_Top.png", 19, 30,
+		108, 30, 6, 6, true, game);
+	aRunningBot = new Animation("res/Assets/Felix_Walk_Down.png", 19, 30,
+		95.5, 30, 6, 6, true, game);
 	aRunningRight = new Animation("res/Assets/Felix_Walk_Right.png", 19, 30,
 		108, 30, 6, 6, true, game);
 	aRunningLeft = new Animation("res/Assets/Felix_Walk_Left.png", 19, 30,
@@ -30,8 +31,12 @@ Player::Player(float x, float y, Game* game)
 }
 
 void Player::update() {
-	if (invulTime > 0) {
-		invulTime--;
+	 
+	if (vy > 0) {
+		orientation = Orientation::TOP;
+	}
+	if (vy < 0) {
+		orientation = Orientation::BOT;
 	}
 	if (vx > 0) {
 		orientation = Orientation::RIGHT;
@@ -39,27 +44,13 @@ void Player::update() {
 	if (vx < 0) {
 		orientation = Orientation::LEFT;
 	}
-	if (collisionDown == true) {
-		onAir = false;
-	}
+	
 	else {
-		onAir = true;
-	}
-
-	if (onAir) {
-		state = States::JUMPING;
-	}
-	else {
-		state = States::MOVING;
+		if(state != States::CLIMBING)
+			state = States::MOVING;
 	}
 
 	bool hasAnimationEnded = animation->update();
-	if (hasAnimationEnded) {
-		// Estaba disparando
-		if (state == States::SHOOTING) {
-			state = States::MOVING;
-		}
-	}
 
 	// Selección de animación basada en estados
 	if (state == States::JUMPING) {
@@ -70,17 +61,25 @@ void Player::update() {
 			animation = aJumpingLeft;
 		}
 	}
-	if (state == States::SHOOTING) {
-		if (orientation ==Orientation::RIGHT) {
-			animation = aShootingRight;
-		}
-		if (orientation == Orientation::LEFT) {
-			animation = aShootingLeft;
-		}
-	}
 	
-	if (state == States::MOVING || state == States::IDLE) {
-		if (vx != 0) {
+	if (state == States::CLIMBING || state == States::MOVING || state == States::IDLE) {
+
+		if (vx != 0 || vy != 0) {
+			if (orientation == Orientation::TOP) {
+
+				if (state == States::CLIMBING) {
+					animation = aClimbing;
+				}
+				else
+					animation = aRunningBot;
+			}
+			if (orientation == Orientation::BOT) {
+				if (state == States::CLIMBING) {
+					animation = aClimbing;
+				}
+				else
+					animation = aRunningTop;
+			}
 			if (orientation == Orientation::RIGHT) {
 				animation = aRunningRight;
 			}
@@ -88,7 +87,13 @@ void Player::update() {
 				animation = aRunningLeft;
 			}
 		}
-		if (vx == 0) {
+		if (vx == 0 && vy == 0) {
+			if (orientation == Orientation::TOP) {
+				animation = aIdleTop;
+			}
+			if (orientation == Orientation::BOT) {
+				animation = aIdleBot;
+			}
 			if (orientation == Orientation::RIGHT) {
 				animation = aIdleRight;
 				state = States::IDLE;
@@ -99,20 +104,9 @@ void Player::update() {
 			}
 		}
 	}
-
-
-	if (shootTime > 0) {
-		shootTime--;
-	}
 }
 
-void Player::jump() {
-	if (!onAir) {
-		vy = -16;
-		onAir = true;
-	}
-
-}
+ 
 
 
 void Player::moveX(float axis) {
@@ -123,37 +117,8 @@ void Player::moveY(float axis) {
 	vy = axis * 3;
 }
 
-Projectile* Player::shoot() {
-	if (shootTime == 0) {
-		audioShoot->play();
-		state = States::SHOOTING;
-		shootTime = shootCadence;
-		auto proyectile = new Projectile(x, y, game);
-		if (orientation == Orientation::LEFT) {
-			proyectile->vx *= -1;
-		}
-		return proyectile;
-	}
-	else {
-		return NULL;
-	}
-
-}
-
 void Player::draw(float scrollX) {
-	if (invulTime == 0) {
-		animation->draw(x - scrollX, y);
-		return;
-	}
-	if(invulTime % 10 >= 0 && invulTime % 10 <= 5) {
-		animation->draw(x - scrollX, y);
-	}
-}
-
-void Player::loseLife() {
-	if (invulTime > 0 || lifes <= 0) {
-		return;
-	}
-	lifes--;
-	invulTime = 100;
+	
+	animation->draw(x - scrollX, y);
+	
 }

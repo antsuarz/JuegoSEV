@@ -50,12 +50,14 @@ enum class States
 	IDLE,
 	MOVING,
 	JUMPING,
+	CLIMBING,
 	DYING,
-	SHOOTING,
 	DEAD
 };
 
 enum class Orientation {
+	TOP,
+	BOT,
 	RIGHT,
 	LEFT
 };

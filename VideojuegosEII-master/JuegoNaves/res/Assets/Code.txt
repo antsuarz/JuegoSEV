@@ -1,0 +1,8 @@
+aIdleRight = new Animation("res/Assets/Felix_Idle_Derecha.png", 18, 29,
+		140,29 , 6, 10, true, game);
+	aIdleLeft = new Animation("res/Assets/Felix_Idle_Izquierda.png", 18, 29,
+		140, 30, 6, 10, true, game);
+	aRunningRight = new Animation("res/Assets/Felix_Walk_Right.png", 19, 30,
+		108, 30, 6, 6, true, game);
+	aRunningLeft = new Animation("res/Assets/Felix_Walk_Left.png", 19, 30,
+		108, 30, 6, 6, true, game);
