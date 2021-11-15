@@ -13,8 +13,7 @@ void GameLayer::init() {
 	tiles.clear(); 
 	//textPoints = new Text("0", WIDTH * 0.92, HEIGHT * 0.05, game);
 	//textPoints->content = to_string(points);
-	//textLifes = new Text("0", WIDTH * 0.13, HEIGHT * 0.1, game);
-	//textLifes->content = to_string(lifes);
+	
 	//textRecolectables = new Text("0", WIDTH * 0.75, HEIGHT * 0.05, game);
 	//textRecolectables->content =  to_string(recolectable);
 	if(game->currentLevel == 0 || game->currentLevel == 2)
@@ -27,12 +26,25 @@ void GameLayer::init() {
 	//Laposición es relativa a la pantalla, en este caso el 85% del aancho y el 5% del alto
 	//backgroundPoints = new Actor("res/icono_puntos.png",
 		//WIDTH * 0.85, HEIGHT * 0.05, 24, 24, game);
-	//backgroundLifes= new Actor("res/icono_vidas.png",
-		//WIDTH *0.07 , HEIGHT * 0.1 ,40, 40, game);
+	
 	//backgroundRecolectables = new Actor("res/icono_recolectable.png",
 		//WIDTH * 0.65, HEIGHT * 0.07, 40, 40, game);
-
-	puertas.clear();
+	//Interfaz Vidas
+	textLifes = new Text("100", WIDTH * 0.125, HEIGHT * 0.1, game);
+	textLifes->content = to_string(100);
+	backgroundLifes = new Actor("res/Assets/Iconos/IconoVidas.png", WIDTH * 0.09, HEIGHT * 0.1, 81, 36, game);
+	//_________________________
+	//Interfaz pociones
+	textPotions  = new Text("100", WIDTH * 0.125, HEIGHT * 0.9, game);
+	textPotions->content = to_string(0);
+	backgroundPotions = new Actor("res/Assets/Iconos/IconoPociones.png", WIDTH * 0.09, HEIGHT * 0.9, 64, 36, game);
+	//__________________________
+	//Interfaz Arma
+	textWeapon = new Text("100", WIDTH * 0.285, HEIGHT * 0.9, game);
+	textWeapon->content = to_string(100);
+	backgroundWeapon = new Actor("res/Assets/Iconos/IconoArma.png", WIDTH * 0.25, HEIGHT * 0.9, 81, 36, game);
+	//__________________________
+	
 	cofres.clear();
 	projectiles.clear(); // Vaciar por si reiniciamos el juego
 	enemies.clear(); // Vaciar por si reiniciamos el juego
@@ -159,6 +171,8 @@ void GameLayer::update() {
 	space->update();
 	background->update();
 	player->update();
+	textLifes->content = to_string(player->life);
+	textWeapon->content = to_string(player->atackDamage);
 	
 	// Nivel superado
 	if (salida->isOverlap(player)) {
@@ -208,6 +222,7 @@ void GameLayer::update() {
 	}  
 
 	for (auto const& r : cofres) {
+		
 		r->update();
 	}
 
@@ -257,7 +272,14 @@ void GameLayer::update() {
 
 	for (auto const& rec : cofres) {
 		if (player->isOverlap(rec)) {
-			rec->open = true; 
+			if (rec->contenido == Contenido::ARMA)
+				player->atackDamage += 20;
+			if (rec->contenido == Contenido::ARMADURA)
+				player->armor += 10;
+			if (rec->contenido == Contenido::POCION && rec->open == false)
+				player->potions += 1;
+			rec->open = true;
+			textPotions->content = to_string(player->potions);
 		}
 	}
 	// Colisiones , Enemy - Projectile
@@ -278,14 +300,7 @@ void GameLayer::update() {
 			}
 		}
 	}
-	for (auto const& p : puertas) {
-		if (p->isOverlap(player)) {
-			for(auto const& p2 : puertas)
-				if (p2->ident == p -> ident && p2-> x != p-> x) {
-					teleportPlayer(p2->x, p2->y);
-				}
-		}
-	}
+	 
 	for (auto const& enemy : enemies) {
 		for (auto const& projectile : projectiles) {
 			if (enemy->isOverlap(projectile)) {
@@ -307,9 +322,7 @@ void GameLayer::update() {
 				enemy) != deleteEnemies.end();
 
 			if (!eInList) {
-				deleteEnemies.push_back(enemy);
-				points++;
-				textPoints->content = to_string(points);
+				deleteEnemies.push_back(enemy); 
 			}
 		}
 	}
@@ -350,10 +363,6 @@ void GameLayer::draw() {
 
 	background->draw();
 
-	for (auto const& p : puertas) {
-		p->draw(scrollX);
-	}
-
 	for (auto const& r: cofres) {
 		r->draw(scrollX);
 	}
@@ -384,12 +393,14 @@ void GameLayer::draw() {
 	for (auto const& enemy : enemies) {
 		enemy->draw(scrollX);
 	}
-	//textPoints->draw(255,233,0);
-	//backgroundPoints->draw();
-	//textLifes->draw(0,0,0);
-	//backgroundLifes->draw();
-	//textRecolectables->draw(255, 0, 0);
-	//backgroundRecolectables->draw();
+	
+	backgroundPotions->draw();
+	textPotions->draw(0, 255, 0);
+	backgroundLifes->draw();
+	textLifes->draw(255,50, 50);
+	backgroundWeapon->draw();
+	textWeapon->draw(0, 0, 0);
+	
 	
 	SDL_RenderPresent(game->renderer); // Renderiza
 }
@@ -427,12 +438,12 @@ void GameLayer::loadMapObject(char character, float x, float y)
 	switch (character) {
 	
 	case 'R': {
-		Cofre* r = new Cofre(x, y, game);
+		Cofre* r = new Cofre(x, y, Contenido::POCION, game);
 		r->y = r->y - r->height / 2;
 		cofres.push_back(r);
 		space->addDynamicActor(r);
 		break;
-	}
+	} 
 	case 'E': {
 		Enemy* enemy = new Enemy(x, y, game);
 		// modificación para empezar a contar desde el suelo.
@@ -446,41 +457,6 @@ void GameLayer::loadMapObject(char character, float x, float y)
 		// modificación para empezar a contar desde el suelo.
 		player->y = player->y - player->height / 2;
 		space->addDynamicActor(player);
-		break;
-	}
-	case '4': {
-		Puerta* p = new Puerta("res/puerta-4.png",4, x, y, game);
-		p->y = p->y - p->height / 2;
-		puertas.push_back(p);
-		space->addStaticActor(p);
-		break;
-	}
-	case '5': {
-		Puerta* p = new Puerta("res/puerta-5.png", 5, x, y, game);
-		p->y = p->y - p->height / 2;
-		puertas.push_back(p);
-		space->addStaticActor(p);
-		break;
-	}
-	case '7': {
-		Puerta* p = new Puerta("res/puerta-7.png", 7, x, y, game);
-		p->y = p->y - p->height / 2;
-		puertas.push_back(p);
-		space->addStaticActor(p);
-		break;
-	}
-	case '8': {
-		Puerta* p = new Puerta("res/puerta-8.png", 8, x, y, game);
-		p->y = p->y - p->height / 2;
-		puertas.push_back(p);
-		space->addStaticActor(p);
-		break;
-	}
-	case '9': {
-		Puerta* p = new Puerta("res/puerta-9.png", 9, x, y, game);
-		p->y = p->y - p->height / 2;
-		puertas.push_back(p);
-		space->addStaticActor(p);
 		break;
 	}
 	

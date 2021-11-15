@@ -61,3 +61,9 @@ enum class Orientation {
 	RIGHT,
 	LEFT
 };
+
+enum class Contenido {
+	ARMA,
+	ARMADURA,
+	POCION
+};

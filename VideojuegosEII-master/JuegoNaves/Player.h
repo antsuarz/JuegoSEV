@@ -27,6 +27,12 @@ public:
 	Animation* animation; // Referencia a la animación mostrada
 	 
 
+	//Combate
+	int life = 100;
+	int armor = 0;
+	int potions = 0;
+	int atackDamage = 10;
+
 	Orientation orientation = Orientation::RIGHT;
 	States state = States::IDLE;
 };

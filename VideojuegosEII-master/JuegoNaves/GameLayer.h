@@ -44,36 +44,30 @@ public:
 	float scrollX;
 	Space* space;
 	Audio* audioBackground;
-	Text* textPoints;
+	Text* textArmor;
+	Text* textWeapon;
 	Text* textLifes;
-	Text* textRecolectables;
+	Text* textPotions;
 	int points;
 	int lifes;
 	int recolectable;
 	Player* player;
 	Background* background;
-	Actor* backgroundPoints;
+	Actor* backgroundPotions;
 	Actor* backgroundLifes;
-	Actor* backgroundRecolectables;
+	Actor* backgroundArmor;
+	Actor* backgroundWeapon;
 	bool controlShoot = false;
 	int controlMoveY = 0;
 	int controlMoveX = 0;
 	int counter =15;
 	void teleportPlayer(int x, int y);
 	Tile* salida;
-	Tile* entrada;
-	//Movidas pal ratón
-	// Elementos de interfaz
-	Pad* pad;
-	void mouseToControls(SDL_Event event); // USO DE MOUSE
-	Actor* buttonJump;
-	Actor* buttonShoot;
-	//---------------
+	Tile* entrada; 
 
 	list<Cofre*> cofres;
 	list<Enemy*> enemies;
-	list<Projectile*> projectiles;
-	list<Puerta*> puertas;
+	list<Projectile*> projectiles; 
 	
 
 };

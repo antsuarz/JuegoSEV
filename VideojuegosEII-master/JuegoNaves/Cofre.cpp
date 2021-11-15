@@ -1,6 +1,6 @@
 #include "Cofre.h"
 
-Cofre::Cofre(float x, float y, Game* g)
+Cofre::Cofre(float x, float y,Contenido c, Game* g)
 	:Actor("res/Assets/cofre.png", x, y, 18, 17, g) {
 
 	aOpening = new Animation("res/Assets/Animacion_AbrirCofre.png", 18, 27,
@@ -11,7 +11,9 @@ Cofre::Cofre(float x, float y, Game* g)
 		18, 23, 15, 1, false, game);
 	animation = aClose;
 	open = false;
+	contenido = c;
 	hasBeenOpened = false;
+	 
 }
 
 void Cofre::update() {
