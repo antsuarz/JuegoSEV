@@ -6,12 +6,12 @@
 #include "Puerta.h"
 
 #include "Background.h"
-#include "Enemy.h"
+#include "EnemyOverworld.h"
 #include "Projectile.h"
 #include "Text.h"
 #include "Tile.h"
 #include "MovableTile.h"
-#include "DraggableTile.h"
+#include "DraggableTile.h" 
 #include "StairsTile.h"
 #include "Space.h"
 #include <list>
@@ -37,8 +37,9 @@ public:
 	void loadMapObject(char character, float x, float y);
 	int mapWidth;
 	list<Tile*> tiles;
+	list<EnemyOverworld*> enemigos;
 	list<MovableTile*> mtiles;
-	list < DraggableTile* > dtiles;
+	list < DraggableTile* > dtiles; 
 	list < StairsTile* > stiles;
 	void calculateScroll();
 	float scrollX;
@@ -47,10 +48,8 @@ public:
 	Text* textArmor;
 	Text* textWeapon;
 	Text* textLifes;
-	Text* textPotions;
-	int points;
-	int lifes;
-	int recolectable;
+	Text* textPotions; 
+	int lifes; 
 	Player* player;
 	Background* background;
 	Actor* backgroundPotions;
@@ -66,7 +65,7 @@ public:
 	Tile* entrada; 
 
 	list<Cofre*> cofres;
-	list<Enemy*> enemies;
+	 
 	list<Projectile*> projectiles; 
 	
 

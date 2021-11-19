@@ -8,6 +8,7 @@ public:
 	virtual void draw(float scrollX = 0);
 	bool isInRender(float scrollX = 0);
 	bool isOverlap(Actor* actor);
+	bool isOverlapDraggable(Actor* actor);
 	bool collisionDown;
 	bool draggable = false;
 	SDL_Texture* texture;

@@ -8,14 +8,18 @@ class Space
 public:
 	Space(float gravity);
 	void update(); 
-	void flyRight(Actor* a);
-	void flyLeft(Actor* a);
+	 
 	void updateMoveRight(Actor* dynamicAct);
 	void updateMoveLeft(Actor* dynamicAct);
 	void updateMoveTop(Actor* dynamicAct);
 	void updateMoveDown(Actor* dynamicAct);
+
+	void updateMoveBoxRight(Actor* dynamicAct);
+	void updateMoveBoxLeft(Actor* dynamicAct);
+
 	void addDynamicActor(Actor* actor);
 	void addNoGravityActor(Actor* actor);
+	void addBoxActor(Actor* actor);
 	void addStaticActor(Actor* actor);
 	void removeDynamicActor(Actor* actor);
 	void removeStaticActor(Actor* actor);
@@ -25,5 +29,6 @@ public:
 	list<Actor*> staticActors;
 
 	list<Actor*> noGravityActors;
+	list<Actor*> boxActors;
 };
 

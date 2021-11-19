@@ -24,12 +24,18 @@ public:
 	Animation* aRunningLeft; 
 	Animation* aJumpingRight;
 	Animation* aJumpingLeft;
+
+	Animation* aShotingBot;
+	Animation* aShotingTop;
+	Animation* aShotingRight;
+	Animation* aShotingLeft;
+
 	Animation* animation; // Referencia a la animación mostrada
 	 
 
 	//Combate
 	int life = 100;
-	int armor = 0;
+	int armor = 10;
 	int potions = 0;
 	int atackDamage = 10;
 

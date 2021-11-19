@@ -158,6 +158,7 @@
     <ClCompile Include="Background.cpp" />
     <ClCompile Include="DraggableTile.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="EnemyOverworld.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameLayer.cpp" />
     <ClCompile Include="Layer.cpp" />
@@ -181,6 +182,7 @@
     <ClInclude Include="Background.h" />
     <ClInclude Include="DraggableTile.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="EnemyOverworld.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameLayer.h" />
     <ClInclude Include="Layer.h" />

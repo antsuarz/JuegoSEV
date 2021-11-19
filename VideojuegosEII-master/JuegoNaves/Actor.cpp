@@ -43,8 +43,21 @@ bool Actor::isOverlap(Actor* actor) {
 	//Calcular las esquinas de las imagenes para saber si se superpone con otra
 	if (actor->x - actor->width / 2 <= x + width / 2
 		&& actor->x + actor->width / 2 >= x - width / 2
-		&& actor->y + actor->height / 2 >= y - height / 2
-		&& actor->y - actor->height / 2 <= y + height / 2) {
+		&& actor->y + actor->height/2 >= y  - height / 2
+		&& actor->y - actor->height/2 <= y + height / 2) {
+
+		overlap = true;
+	}
+	return overlap;
+}
+
+bool Actor::isOverlapDraggable(Actor* actor) {
+	bool overlap = false;
+	//Calcular las esquinas de las imagenes para saber si se superpone con otra
+	if (actor->x - actor->width / 2 <= x + width / 4
+		&& actor->x + actor->width / 2 >= x - width / 4
+		&& actor->y + actor->height / 4 >= y - height / 4
+		&& actor->y - actor->height / 4 <= y + height / 4) {
 
 		overlap = true;
 	}

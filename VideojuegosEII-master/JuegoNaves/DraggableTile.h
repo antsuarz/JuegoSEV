@@ -4,7 +4,7 @@
 class DraggableTile : public Actor
 {
 public: 
-	DraggableTile(float x, float y, Game* game); 
+	DraggableTile(float x, float y,  Game* game); 
 };
 
 

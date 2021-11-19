@@ -25,6 +25,12 @@ Player::Player(float x, float y, Game* game)
 		108, 30, 6, 6, true, game);
 	aRunningLeft = new Animation("res/Assets/Felix_Walk_Left.png", 19, 30,
 		108, 30, 6, 6, true, game);
+
+	aShotingBot = new Animation("res/Assets/Lanzar_Hechizo_Frente.png", 19, 30,36, 30, 12, 2, true, game);
+	aShotingTop = new Animation("res/Assets/Lanzar_Hechizo_Espalda.png", 19, 30, 36, 30, 12, 2, true, game);
+	aShotingLeft = new Animation("res/Assets/Lanzar_Hechizo_Izquierda.png", 19, 30, 44, 30, 12, 2, true, game);
+	aShotingRight = new Animation("res/Assets/Lanzar_Hechizo_Derecha.png", 19, 30, 44, 30, 12, 2, true, game);
+
 	animation = aIdleRight;
 	orientation = Orientation::RIGHT;
  
@@ -110,11 +116,15 @@ void Player::update() {
 
 
 void Player::moveX(float axis) {
-	vx = axis * 3;
+	 
+		vx = axis * 3;
+	 
 }
 
 void Player::moveY(float axis) {
-	vy = axis * 3;
+	 
+		vy = axis * 3;
+	 
 }
 
 void Player::draw(float scrollX) {
