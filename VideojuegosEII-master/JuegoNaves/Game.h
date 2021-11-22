@@ -33,14 +33,22 @@ public:
 	Layer* layer;
 	Layer* menuLayer;
 	Layer *gameLayer;
+	Layer* battleLayer;
+
+	int battleLevel;
+	int armor;
+	int potions;
+	int ad;
 
 	int currentLevel = 0;
-	int finalLevel = 2;
+	int finalLevel = 4;
 
 	int input;
 	int const inputKeyboard = 1;
 	int const inputMouse = 2;
 	int const inputGamePad = 3;
+	 
+	
 
 };
 
@@ -51,8 +59,7 @@ enum class States
 	MOVING,
 	JUMPING,
 	CLIMBING, 
-	DYING,
-	DEAD
+	CAST
 };
 
 enum class Type {

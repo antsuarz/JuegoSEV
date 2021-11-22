@@ -1,6 +1,6 @@
 #include "Game.h"
 #include "GameLayer.h"
-
+#include "BattleLayer.h"
 #include "MenuLayer.h"
 
 Game::Game() {
@@ -12,12 +12,11 @@ Game::Game() {
 	}
 	SDL_SetWindowTitle(window, "Juego de Plataformas");
 	// Escalado de imágenes de calidad  
-	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
-
-
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"); 
 	//PANTALLAS DEL JUEGO
 	menuLayer = new MenuLayer(this);
 	gameLayer = new GameLayer(this);
+	battleLayer = new BattleLayer(battleLevel,ad,armor, potions, this);
 	layer = layer = menuLayer; // Pantalla INICIAL MENULAYER
 	
 							   

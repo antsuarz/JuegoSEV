@@ -5,7 +5,7 @@ Text::Text(string content, float x, float y, Game* game)
 {
 }
 
-void Text::draw(int r, int g, int b) { 
+void Text::draw(int r, int g, int b, double size) { 
 	SDL_Color color;
 	color.r = r;
 	color.g = g;
@@ -19,8 +19,8 @@ void Text::draw(int r, int g, int b) {
 	SDL_Rect rect; // Base de coordenadas esquina superior izquierda
 	rect.x = x - surface->w / 2;
 	rect.y = y - surface->h / 2;
-	rect.w = surface->w;
-	rect.h = surface->h;
+	rect.w = surface->w/size;
+	rect.h = surface->h/size;
 
 	SDL_FreeSurface(surface);
 	SDL_RenderCopy(game->renderer, texture, NULL, &rect);

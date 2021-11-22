@@ -4,5 +4,5 @@ class StairsTile : public Actor
 {
 public:
 	 
-	StairsTile(float x, float y, Game* game);  
+	StairsTile(string filename, float x, float y, Game* game);  
 };

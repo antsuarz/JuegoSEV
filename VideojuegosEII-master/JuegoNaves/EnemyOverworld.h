@@ -9,5 +9,7 @@ public:
 	void draw(float scrollX = 0) override; 
 	Animation* aIdle;
 	Animation* animation;
+
+	bool beated = false;
 };
 

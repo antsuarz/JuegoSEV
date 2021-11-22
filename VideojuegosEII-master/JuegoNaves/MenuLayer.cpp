@@ -63,6 +63,8 @@ void MenuLayer::processControls() {
 				game->scale();
 				break;
 			case SDLK_SPACE: // dispara
+				audioBackground = new Audio("res/Assets/Sonidos/MusicaJuego.mp3", true);
+				audioBackground->play();
 				controlContinue = true;
 				break;
 			}

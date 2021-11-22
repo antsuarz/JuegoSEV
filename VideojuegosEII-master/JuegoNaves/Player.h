@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Actor.h"
-#include "Projectile.h" 
+#include "BolaFuego.h" 
 #include "Animation.h" 
 #include "Audio.h"
 
@@ -12,7 +12,10 @@ public:
 	void update();
 	void moveX(float axis);
 	void moveY(float axis);
-	void draw(float scrollX = 0) override; // Va a sobrescribir
+	void draw(float scrollX = 0) override;
+
+	BolaFuego* cast();
+
 	Animation* aClimbing;
 	Animation* aIdleBot;
 	Animation* aIdleTop;
@@ -31,9 +34,9 @@ public:
 	Animation* aShotingLeft;
 
 	Animation* animation; // Referencia a la animación mostrada
-	 
-
-	//Combate
+	
+	int castCadence = 100;
+	int castTime = 0;
 	int life = 100;
 	int armor = 10;
 	int potions = 0;

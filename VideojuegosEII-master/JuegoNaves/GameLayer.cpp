@@ -43,34 +43,35 @@ void GameLayer::init() {
 	
 	cofres.clear();
 	projectiles.clear();  
-	enemigos.clear();  
-	mtiles.clear();
+	enemigos.clear();   
 	dtiles.clear();
+	destiles.clear();
 	stiles.clear();
 	loadMap("res/" + to_string(game->currentLevel) + ".txt"); 
 
 }
 
-void GameLayer::processControls() {
-	// obtener controles
+void GameLayer::processControls() { 
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
-		// Cambio automático de input
 		if (event.type == SDL_KEYDOWN) {
 			game->input = game->inputKeyboard;
 		}
 		if (event.type == SDL_MOUSEBUTTONDOWN) {
 			game->input = game->inputMouse;
-		}
-		// Procesar teclas
-
+		} 
 		if (game->input == game->inputKeyboard) {
 			keysToControls(event);
+		} 
+	}
+	if (controlShoot) {
+		BolaFuego* newProjectile = player->cast();
+		if (newProjectile != NULL) { 
+			space->addDynamicActor(newProjectile);
+			projectiles.push_back(newProjectile); 
 		}
-		 
 
 	}
-
 	// Eje X
 	if (controlMoveX > 0) {
 		player->moveX(1);
@@ -164,7 +165,7 @@ void GameLayer::keysToControls(SDL_Event event) {
 }
 
 
-void GameLayer::update() {
+void GameLayer::update() { 
 	space->update();
 	background->update();
 	player->update();
@@ -176,8 +177,10 @@ void GameLayer::update() {
 	if (salida->isOverlapDraggable(player)) {
 		if (counter == 0) {
 			if (game->currentLevel == 2)
-				game->currentLevel--;
-			else
+				game->currentLevel--; 
+			if (game->currentLevel == 1)
+				game->currentLevel = 4;
+			else 
 				game->currentLevel++;
 			if (game->currentLevel > game->finalLevel) {
 				game->currentLevel = 0;
@@ -207,17 +210,37 @@ void GameLayer::update() {
 	}
 	 
 	for (auto const& st : stiles) {
-		if (player->isOverlap(st))
-			player->state = States::CLIMBING; 
-		else
-			player->state = States::IDLE;
+		States s = player->state;
+		if (player->isOverlap(st)) {
+			player->state = States::CLIMBING;
+			break;
+		}
+		else {
+			if (s != States::CAST)
+				player->state = States::IDLE; 
+		}
 	}
- 
-	for (auto const& tile : mtiles) {
-		tile->update();
-	}  
+  
 	for (auto const& e : enemigos) {
 		e->update();
+		if (e->isOverlap(player)) { 
+			int ad = player->atackDamage; 
+			int armor = player->armor;
+			int potions = player->potions;
+			if (game->battleLevel == 0) {
+				game->battleLayer = new BattleLayer(0, ad, armor, potions, game);
+				audioBackground = new Audio("res/Assets/Sonidos/Batalla.mp3", true);
+				audioBackground->play();
+			}
+			if (game->battleLevel == 1) {
+				game->battleLayer = new BattleLayer(1, ad, armor, potions, game);
+				audioBackground = new Audio("res/Assets/Sonidos/BatallaSaturnos.mp3", true);
+				audioBackground->play();
+			}
+			
+			game->layer = game->battleLayer;
+			 
+		}
 	}
 
 	for (auto const& r : cofres) {
@@ -226,38 +249,69 @@ void GameLayer::update() {
 	}
 
 	// Colisiones
-	for (auto const& mt : mtiles) {
-		for (auto const& t : tiles)
-			if (mt->isOverlap(t)) {
-				if (t->x > mt->x) {
-					mt->x = mt->x - 5;
-				}
-				else
-					mt->x = mt->x + 5;
-				mt->vx = mt->vx * -1;
-				
-			}
-		if (player->isOverlap(mt) && player->state == States::IDLE) {
-			player->x = mt->x;
-		}
-	} 
 	for (auto const& dt : dtiles) { 
 		if (player->isOverlapDraggable(dt) && player->orientation == Orientation::BOT) {  
-			player->y = player->y + 5;
+			dt->y= dt->y - 3;
+			break;
 		}
 		else if (player->isOverlapDraggable(dt) && player->orientation == Orientation::TOP) { 
-			player->y = player->y - 5;
+			dt->y = dt->y + 3;
+			break;
 		}
 		else if (player->isOverlapDraggable(dt) && player->orientation == Orientation::RIGHT) {
 			 
 			dt->x = dt->x + 3; 
+			break;
 		}
 		else if (player->isOverlapDraggable(dt) && player->orientation == Orientation::LEFT) {
-			 
 			dt->x = dt->x - 3; 
-		} 
-		else
-			continue;
+			break;
+		}  
+	}
+
+	for (auto const& dt : dtiles) {
+		for (auto const& t : tiles) {
+			if (t->isOverlapDraggable (dt) && player->orientation == Orientation::TOP) {
+				player->y = player->y - 5;
+				dt->y = dt->y - 3;
+				break;
+			}
+			else if (t->isOverlapDraggable (dt) && player->orientation == Orientation::BOT) {
+				player->y = player->y + 5;
+				dt->y = dt->y + 3;
+				break;
+			}
+			if (t->isOverlapDraggable(dt) && player->orientation == Orientation::RIGHT) {
+				player->x = player->x - 5;
+				dt->x = dt->x - 3;
+				break;
+			}
+			else if (t->isOverlapDraggable(dt) && player->orientation == Orientation::LEFT) {
+				player->x = player->x + 5;
+				dt->x = dt->x + 3;
+				break;
+			} 
+		}
+	}
+
+	for (auto const& dt : destiles) {
+		dt->update();
+		if (!dt->hasBeenDestroyed) {
+			if (player->isOverlapDraggable(dt) && player->orientation == Orientation::BOT) {
+				player->y = player->y + 5;
+			}
+			else if (player->isOverlapDraggable(dt) && player->orientation == Orientation::TOP) {
+				player->y = player->y - 5;
+			}
+			else if (player->isOverlapDraggable(dt) && player->orientation == Orientation::RIGHT) {
+				player->x = player->x - 5;
+			}
+			else if (player->isOverlapDraggable(dt) && player->orientation == Orientation::LEFT) {
+				player->x = player->x + 5;
+			}
+			else
+				continue;
+		}
 	}
 	 
 	for (auto const& projectile : projectiles) {
@@ -276,11 +330,7 @@ void GameLayer::update() {
 			textPotions->content = to_string(player->potions);
 		}
 	}
-	// Colisiones , Enemy - Projectile
-	 
-	list<Projectile*> deleteProjectiles;
-
-	//Elimina los proyectiles si se salen de la pantalla
+	list<BolaFuego*> deleteProjectiles;
 	for (auto const& projectile : projectiles) {
 		if (projectile->isInRender(scrollX) == false || projectile -> vx == 0) {
 
@@ -293,8 +343,20 @@ void GameLayer::update() {
 			}
 		}
 	}
-	 
- 
+	for (auto const& tile : destiles) {
+		for (auto const& projectile : projectiles) {
+			if (tile->isOverlap(projectile)) {
+				bool pInList = std::find(deleteProjectiles.begin(),
+					deleteProjectiles.end(),
+					projectile) != deleteProjectiles.end();
+
+				if (!pInList) {
+					deleteProjectiles.push_back(projectile);
+				}
+				tile->impact = true; 
+			}
+		}
+	}
 	for (auto const& delProjectile : deleteProjectiles) {
 		projectiles.remove(delProjectile);
 		space->removeDynamicActor(delProjectile);
@@ -330,12 +392,7 @@ void GameLayer::draw() {
 
 	for (auto const& tile : tiles) {
 		tile->draw(scrollX);
-	}
-	for (auto const& tile : mtiles) {
-		tile->draw(scrollX);
-	}
-
-	
+	} 
 
 	for (auto const& tile : stiles) {
 		tile->draw(scrollX);
@@ -352,6 +409,10 @@ void GameLayer::draw() {
 		tile->draw(scrollX);
 	}
 
+	for (auto const& tile : destiles) {
+		tile->draw(scrollX);
+	}
+
 	for (auto const& enemy : enemigos) {
 		enemy->draw(scrollX);
 	}
@@ -359,13 +420,13 @@ void GameLayer::draw() {
 	player->draw(scrollX);
 
 	backgroundPotions->draw();
-	textPotions->draw(0, 255, 0);
+	textPotions->draw(0, 255, 0,1);
 	backgroundLifes->draw();
-	textLifes->draw(255,50, 50);
+	textLifes->draw(255,50, 50,1);
 	backgroundWeapon->draw();
-	textWeapon->draw(0, 0, 0);
+	textWeapon->draw(0, 0, 0,1);
 	backgroundArmor->draw();
-	textArmor->draw(250, 250, 250);
+	textArmor->draw(250, 250, 250,1);
 	
 	
 	SDL_RenderPresent(game->renderer); // Renderiza
@@ -428,6 +489,7 @@ void GameLayer::loadMapObject(char character, float x, float y)
 		EnemyOverworld* e = new EnemyOverworld("res/Assets/Saturnos.png",68,29,4 ,17,x, y, game);
 		// modificación para empezar a contar desde el suelo.
 		e->y = e->y - e->height / 2;
+		game->battleLevel = 1;
 		enemigos.push_back(e);
 		space->addNoGravityActor(e);
 		break;
@@ -435,12 +497,17 @@ void GameLayer::loadMapObject(char character, float x, float y)
 	case 'k': {
 		EnemyOverworld* e = new EnemyOverworld("res/Assets/Karst.png",48,29, 2,24, x, y, game);
 		// modificación para empezar a contar desde el suelo.
+		game->battleLevel = 0;
 		e->y = e->y - e->height / 2;
 		enemigos.push_back(e);
 		space->addNoGravityActor(e);
 		break;
 	}
 	case '1': {
+		cout << "x: ";
+		cout << x;
+		cout << " y : ";
+		cout <<y;
 		player = new Player(x, y, game);
 		// modificación para empezar a contar desde el suelo.
 		player->y = player->y - player->height / 2;
@@ -456,15 +523,26 @@ void GameLayer::loadMapObject(char character, float x, float y)
 		space->addStaticActor(tile);
 		break;
 	}
-	case 'B': {
+	case 'X': {
+		DestructibleTile* tile = new DestructibleTile(x,y,game); 
+		tile->y = tile->y - tile->height / 2;
+		destiles.push_back(tile);
+		space->addNoGravityActor(tile);
+		break;
+	}
+	case 'B': { 
 		entrada = new Tile("res/Assets/Tiles/Pared_Volver.png", x, y, game);
 		// modificación para empezar a contar desde el suelo.
 		entrada->y = entrada->y - entrada->height / 2;
 		space->addDynamicActor(entrada);
 		break;
 	}
+
 	case 'C': {
-		salida = new Tile("res/Assets/Tiles/Tile_Puerta.png", x, y, game);
+		if (game->currentLevel == 1)
+			salida = new Tile("res/Assets/Tiles/Puerta_Cueva.png", x, y, game);
+		else
+			salida = new Tile("res/Assets/Tiles/Tile_Puerta.png", x, y, game);
 		// modificación para empezar a contar desde el suelo.
 		salida->y = salida->y - salida->height / 2;
 		space->addDynamicActor(salida); // Realmente no hace falta
@@ -473,6 +551,15 @@ void GameLayer::loadMapObject(char character, float x, float y)
 	case 'P': {
 		Tile* tile = new Tile("res/Assets/Tiles/Tile_Pared.png", x, y, game);
 		// modificación para empezar a contar desde el suelo.
+		tile->y = tile->y - tile->height / 2;
+		tiles.push_back(tile);
+		space->addStaticActor(tile);
+		break;
+	}
+	case 'T': {
+		Tile* tile = new Tile("res/Assets/Arbol.gif", x, y,32,53, game);
+		// modificación para empezar a contar desde el suelo.
+		 
 		tile->y = tile->y - tile->height / 2;
 		tiles.push_back(tile);
 		space->addStaticActor(tile);
@@ -574,7 +661,7 @@ void GameLayer::loadMapObject(char character, float x, float y)
 		tiles.push_back(tile);
 		space->addStaticActor(tile);
 		break;
-	}
+	} 
 	case 'N': {
 		Tile* tile = new Tile("res/Assets/Tiles/Negro.png", x, y, game);
 		// modificación para empezar a contar desde el suelo.
@@ -598,14 +685,6 @@ void GameLayer::loadMapObject(char character, float x, float y)
 		tiles.push_back(tile);
 		space->addNoGravityActor(tile);
 		break;
-	}
-	case 'X': {
-		MovableTile* tile = new MovableTile(x, y, game);
-		// modificación para empezar a contar desde el suelo.
-		tile->y = tile->y - tile->height / 2;
-		mtiles.push_back(tile);
-		space->addStaticActor(tile);
-		break;
 	} 
 	case 'Q': {
 		DraggableTile* tile = new DraggableTile(x, y, game); 
@@ -615,7 +694,15 @@ void GameLayer::loadMapObject(char character, float x, float y)
 		break;
 	} 
 	case 'S': {
-		StairsTile* tile = new StairsTile(x, y, game);
+		StairsTile* tile = new StairsTile("res/Assets/Tiles/Escalera_Top.png",x, y, game);
+		// modificación para empezar a contar desde el suelo.
+		tile->y = tile->y - tile->height / 2;
+		stiles.push_back(tile);
+		space->addNoGravityActor(tile);
+		break;
+	}
+	case 'D': {
+		StairsTile* tile = new StairsTile("res/Assets/Tiles/Escalera_Bot.png",x, y, game);
 		// modificación para empezar a contar desde el suelo.
 		tile->y = tile->y - tile->height / 2;
 		stiles.push_back(tile);
